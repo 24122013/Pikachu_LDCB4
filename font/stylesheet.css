@@ -1,0 +1,72 @@
+@font-face {
+    font-family: 'Folty Book';
+    src: url('Folty-Book.eot');
+    src: local('Folty Book'), local('Folty-Book'),
+        url('Folty-Book.eot?#iefix') format('embedded-opentype'),
+        url('Folty-Book.woff2') format('woff2'),
+        url('Folty-Book.woff') format('woff'),
+        url('Folty-Book.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Folty';
+    src: url('Folty-Light.eot');
+    src: local('Folty Light'), local('Folty-Light'),
+        url('Folty-Light.eot?#iefix') format('embedded-opentype'),
+        url('Folty-Light.woff2') format('woff2'),
+        url('Folty-Light.woff') format('woff'),
+        url('Folty-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Folty';
+    src: url('Folty-Medium.eot');
+    src: local('Folty Medium'), local('Folty-Medium'),
+        url('Folty-Medium.eot?#iefix') format('embedded-opentype'),
+        url('Folty-Medium.woff2') format('woff2'),
+        url('Folty-Medium.woff') format('woff'),
+        url('Folty-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Folty';
+    src: url('Folty-Bold.eot');
+    src: local('Folty Bold'), local('Folty-Bold'),
+        url('Folty-Bold.eot?#iefix') format('embedded-opentype'),
+        url('Folty-Bold.woff2') format('woff2'),
+        url('Folty-Bold.woff') format('woff'),
+        url('Folty-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Folty';
+    src: url('Folty-SemiBold.eot');
+    src: local('Folty SemiBold'), local('Folty-SemiBold'),
+        url('Folty-SemiBold.eot?#iefix') format('embedded-opentype'),
+        url('Folty-SemiBold.woff2') format('woff2'),
+        url('Folty-SemiBold.woff') format('woff'),
+        url('Folty-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Folty';
+    src: url('Folty-Thin.eot');
+    src: local('Folty Thin'), local('Folty-Thin'),
+        url('Folty-Thin.eot?#iefix') format('embedded-opentype'),
+        url('Folty-Thin.woff2') format('woff2'),
+        url('Folty-Thin.woff') format('woff'),
+        url('Folty-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
