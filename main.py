@@ -13,6 +13,7 @@ Time = pg.time.Clock()
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 LIST_BACKGROUND = [pg.transform.scale(pg.image.load("images/background/" + str(i) + ".jpg"), (SCREEN_WIDTH, SCREEN_HEIGHT)) for i in range(3)]
+BACKGROUND_IMAGE = pg.transform.scale(pg.image.load("images/background/0.jpg"), (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 BOARD_ROW = 9 #7
 BOARD_COLUMN = 14 #12
@@ -95,21 +96,164 @@ win_sound = pg.mixer.Sound("sound/win.mp3")
 win_sound.set_volume(0.2)
 game_over_sound = pg.mixer.Sound("sound/gameover.wav")
 game_over_sound.set_volume(0.2)
+import sqlite3
+DB_FILE = "game_data.db"
+
+def init_database():
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+
+    # Tạo bảng users
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL
+        )
+    """)
+
+    # Tạo bảng scores
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS scores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            score INTEGER NOT NULL,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+init_database()
+
+def login(username, password):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
+    user = cursor.fetchone()
+    conn.close()
+    return user is not None
+
+def register(username, password):
+    conn = sqlite3.connect(DB_FILE)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+        conn.commit()
+        success = True
+    except sqlite3.IntegrityError:
+        success = False
+    conn.close()
+    return success
+
+class InputBox:
+    def __init__(self, x, y, w, h, text=''):
+        self.rect = pg.Rect(x, y, w, h)
+        self.color = (255, 223, 186)  # Pastel yellow border color
+        self.bg_color = (255, 255, 255)  # White background
+        self.text = text
+        self.txt_surface = FONT_COMICSANSMS.render(text, True, (0, 0, 0))
+        self.active = False
+
+    def handle_event(self, event):
+        if event.type == pg.MOUSEBUTTONDOWN:
+            self.active = self.rect.collidepoint(event.pos)
+            self.color = (0, 0, 255) if self.active else (200, 200, 200)
+        if event.type == pg.KEYDOWN and self.active:
+            if event.key == pg.K_RETURN:
+                return self.text
+            elif event.key == pg.K_BACKSPACE:
+                self.text = self.text[:-1]
+            else:
+                self.text += event.unicode
+            self.txt_surface = FONT_COMICSANSMS.render(self.text, True, (0, 0, 0))
+
+    def draw(self, screen):
+        pg.draw.rect(screen, self.bg_color, self.rect, border_radius=15)  # Draw background with rounded corners
+        pg.draw.rect(screen, self.color, self.rect, 4, border_radius=15)  # Draw border with rounded corners
+        screen.blit(self.txt_surface, (self.rect.x + 10, self.rect.y + (self.rect.height - self.txt_surface.get_height()) // 2))
+
+class Button:
+    def __init__(self, x, y, w, h, text, color=(200, 200, 200), text_color=(0, 0, 0)):
+        self.rect = pg.Rect(x, y, w, h)
+        self.color = color
+        self.text = text
+        self.text_color = text_color
+        self.txt_surface = FONT_COMICSANSMS.render(text, True, text_color)
+
+    def draw(self, screen):
+        pg.draw.rect(screen, self.color, self.rect, border_radius=10)
+        screen.blit(self.txt_surface, (self.rect.x + (self.rect.w - self.txt_surface.get_width()) // 2, 
+                                       self.rect.y + (self.rect.h - self.txt_surface.get_height()) // 2))
+
+    def is_clicked(self, event):
+        return event.type == pg.MOUSEBUTTONDOWN and self.rect.collidepoint(event.pos)
+
+def login_menu():
+    global lives,level
+    clock = pg.time.Clock()
+    input_boxes = [
+        InputBox(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 - 100, 300, 50),
+        InputBox(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 - 20, 300, 50)
+    ]
+    login_button = Button(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 + 60, 300, 50, "Login", color=(255, 223, 0))
+    register_button = Button(SCREEN_WIDTH // 2 - 150, SCREEN_HEIGHT // 2 + 130, 300, 50, "Register", color=(255, 165, 0))
+    message = ""
+    message_color = (255, 0, 0)
+
+    while True:
+        screen.blit(BACKGROUND_IMAGE, (0, 0))
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                pg.quit()
+                sys.exit()
+            for box in input_boxes:
+                box.handle_event(event)
+            if login_button.is_clicked(event):
+                username = input_boxes[0].text
+                password = input_boxes[1].text
+                if login(username, password):
+                    message = "Login Successful!"
+                    message_color = (0, 255, 0)
+                    while True:
+                        level = 1
+                        lives = 3
+                        start_screen()
+                        while level <= MAX_LEVEL:
+                            random.shuffle(LIST_BACKGROUND)
+                            playing()
+                            level += 1
+                            pg.time.wait(300)
+                            pg.mixer.music.play(-1)
+                else:
+                    message = "Invalid Credentials!"
+            if register_button.is_clicked(event):
+                username = input_boxes[0].text
+                password = input_boxes[1].text
+                if register(username, password):
+                    message = "Registration Successful!"
+                    message_color = (0, 255, 0)
+                else:
+                    message = "Username Already Exists!"
+
+        for box in input_boxes:
+            box.draw(screen)
+
+        login_button.draw(screen)
+        register_button.draw(screen)
+
+        if message:
+            msg_surface = FONT_COMICSANSMS.render(message, True, message_color)
+            screen.blit(msg_surface, (400 - msg_surface.get_width() // 2, 500))
+
+        pg.display.flip()
+        clock.tick(30)
+        
+
 def main():
-	#init pygame and module
-	global level, lives
-	
-	while True:
-		level = 1
-		lives = 3
-		start_screen()
-		while level <= MAX_LEVEL:
-			random.shuffle(LIST_BACKGROUND)
-			playing()
-			level += 1
-			pg.time.wait(300)
-			pg.mixer.music.play(-1)
-			#end
+    global level, lives
+    print("===== Chào mừng đến với Game Pikachu =====")
+    login_menu()
 
 def start_screen():
 	global sound_on, music_on, show_instruction
