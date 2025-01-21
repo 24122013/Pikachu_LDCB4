@@ -13,7 +13,7 @@ Time = pg.time.Clock()
 screen = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 LIST_BACKGROUND = [pg.transform.scale(pg.image.load("images/background/" + str(i) + ".jpg"), (SCREEN_WIDTH, SCREEN_HEIGHT)) for i in range(3)]
-BACKGROUND_IMAGE = pg.transform.scale(pg.image.load("images/background/0.jpg"), (SCREEN_WIDTH, SCREEN_HEIGHT))
+BACKGROUND_IMAGE = pg.transform.scale(pg.image.load("images/background/1.jpg"), (SCREEN_WIDTH, SCREEN_HEIGHT))
 
 BOARD_ROW = 9 #7
 BOARD_COLUMN = 14 #12
@@ -101,15 +101,11 @@ import pygame
 import sqlite3
 import sys
 
-# Khởi tạo Pygame
 pygame.init()
 
-# Kích thước màn hình
 WIDTH, HEIGHT = 1200, 720
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Login and Signup Menu")
 
-# Màu sắc
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
@@ -117,18 +113,14 @@ BLUE = (0, 120, 215)
 RED = (255, 0, 0)
 GREEN = (0, 200, 0)
 
-# Phông chữ
 font = pygame.font.Font(None, 36)
 small_font = pygame.font.Font(None, 28)
 
-# Trạng thái màn hình
 state = "menu"  # menu, login, signup, start
 
-# Kết nối cơ sở dữ liệu SQLite
 conn = sqlite3.connect("users.db")
 cursor = conn.cursor()
 
-# Tạo bảng nếu chưa tồn tại
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -138,15 +130,12 @@ CREATE TABLE IF NOT EXISTS users (
 """)
 conn.commit()
 
-# Biến để xử lý
 active_box = None
-message = ""  # Hiển thị thông báo (nếu có)
+message = ""  
 
-# Tạo ô nhập liệu
 def create_input_box(x, y, w, h, text=""):
     return {"rect": pygame.Rect(x, y, w, h), "color": GRAY, "text": text, "active": False}
 
-# Các ô nhập liệu
 login_boxes = [
     create_input_box(450, 250, 300, 40),  # Username
     create_input_box(450, 310, 300, 40),  # Password
@@ -158,31 +147,27 @@ signup_boxes = [
     create_input_box(450, 370, 300, 40),  # Confirm Password
 ]
 
-# Vẽ chữ lên màn hình
 def draw_text(text, font, color, surface, x, y):
     text_obj = font.render(text, True, color)
     text_rect = text_obj.get_rect(center=(x, y))
     surface.blit(text_obj, text_rect)
 
-# Vẽ các ô nhập liệu
 def draw_input_boxes(screen, boxes):
     for box in boxes:
+        pygame.draw.rect(screen, WHITE, box["rect"]) 
         pygame.draw.rect(screen, box["color"], box["rect"], 2)
         draw_text(box["text"], small_font, BLACK, screen, box["rect"].centerx, box["rect"].centery)
 
-# Xử lý nhập liệu
 def handle_input(event, box):
     if event.key == pygame.K_BACKSPACE:
         box["text"] = box["text"][:-1]
     else:
         box["text"] += event.unicode
 
-# Kiểm tra đăng nhập
 def check_login(username, password):
     cursor.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username.strip(), password.strip()))
     return cursor.fetchone() is not None
 
-# Đăng ký người dùng mới
 def register_user(username, password):
     username = username.strip()
     password = password.strip()
@@ -200,13 +185,13 @@ def login_menu():
     clock = pg.time.Clock()
     while True:
         screen.fill(WHITE)
+        screen.blit(BACKGROUND_IMAGE , (0, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 conn.close()
                 pygame.quit()
                 sys.exit()
 
-            # Xử lý chuột
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if state in ["login", "signup"]:
                     for box in (login_boxes if state == "login" else signup_boxes):
@@ -216,11 +201,9 @@ def login_menu():
                         else:
                             box["color"] = GRAY
 
-            # Xử lý nhập liệu từ bàn phím
             if event.type == pygame.KEYDOWN and active_box:
                 handle_input(event, active_box)
 
-        # Các màn hình
         if state == "menu":
             draw_text("Welcome!", font, BLACK, screen, WIDTH // 2, 80)
             login_button = pygame.Rect(WIDTH // 2 - 100, 200, 200, 50)
@@ -258,6 +241,8 @@ def login_menu():
                         draw_text("Login Failed!", small_font, RED, screen, WIDTH // 2, 500)
                 elif back_button.collidepoint(event.pos):
                     state = "menu"
+                    login_boxes[0]["text"] = ""
+                    login_boxes[1]["text"] = ""
 
         elif state == "signup":
             draw_text("Sign Up", font, BLACK, screen, WIDTH // 2, 100)
@@ -275,16 +260,15 @@ def login_menu():
                     password = signup_boxes[1]["text"]
                     confirm_password = signup_boxes[2]["text"]
 
-                    # Kiểm tra các trường hợp nhập liệu
                     if not username.strip() or not password.strip() or not confirm_password.strip():
-                        message = "Please fill all fields!"  # Hiển thị lỗi nếu có trường trống
+                        message = "Please fill all fields!"  
                     elif password != confirm_password:
-                        message = "Passwords do not match!"  # Hiển thị lỗi nếu mật khẩu không khớp
+                        message = "Passwords do not match!"  
                     else:
                         success, message = register_user(username, password)
                         if success:
                             message = "Sign Up Successful!"
-                            state = "login"  # Chuyển sang màn hình login sau khi đăng ký thành công
+                            state = "login" 
                 elif back_button.collidepoint(event.pos):
                     signup_boxes[0]["text"] = ""
                     signup_boxes[1]["text"] = ""
