@@ -6,6 +6,52 @@ pg.init()
 pg.font.init()
 pg.mixer.init()
 
+class FancyButton:
+    def __init__(self, x, y, image, text="", font=None, text_color=(255,255,255)):
+        
+        self.image_normal = image
+        self.image = image.copy()  
+        self.rect = self.image.get_rect(center=(x, y))
+
+        self.text = text
+        self.font = font
+        self.text_color = text_color
+
+        self.clicked = False
+
+    def draw(self, surface):
+        
+        surface.blit(self.image, self.rect)
+        
+        if self.text and self.font:
+            text_surf = self.font.render(self.text, True, self.text_color)
+            text_rect = text_surf.get_rect(center=self.rect.center)
+            surface.blit(text_surf, text_rect)
+
+    def update(self, event_list):
+        
+        mouse_pos = pg.mouse.get_pos()
+        mouse_pressed = pg.mouse.get_pressed()[0]
+
+        
+        self.image = self.image_normal.copy()
+
+        
+        if self.rect.collidepoint(mouse_pos):
+            
+            self.image.fill((60, 60, 60), special_flags=pg.BLEND_RGB_SUB)
+            if mouse_pressed and not self.clicked:
+                self.clicked = True
+                self.image.fill((60, 60, 60), special_flags=pg.BLEND_RGB_SUB)
+            elif not mouse_pressed and self.clicked:
+                self.clicked = False
+                return True
+        else:
+            self.clicked = False
+
+        return False
+
+
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 720
 FPS = 60
@@ -64,6 +110,18 @@ LIST_LEVEL = [pg.transform.scale(pg.image.load("images/level/" + str(i) + ".png"
 LOGO_IMAGE = pg.transform.scale(pg.image.load("images/logo/logo_home.png"), (600, 200))
 # PLAY_IMAGE = pg.transform.scale(pg.image.load("images/button/play.png"), (144, 48))
 PLAY_IMAGE = pg.image.load("images/button/play.png")
+EASY_IMG = pg.image.load("images/button/easy.png").convert_alpha()
+MEDIUM_IMG = pg.image.load("images/button/medium.png").convert_alpha()
+HARD_IMG = pg.image.load("images/button/hard.png").convert_alpha()
+
+def scale_image(img, scale=0.7):
+    width = int(img.get_width() * scale)
+    height = int(img.get_height() * scale)
+    return pg.transform.smoothscale(img, (width, height))
+
+EASY_IMG = scale_image(EASY_IMG, 0.3)
+MEDIUM_IMG = scale_image(MEDIUM_IMG, 0.3)
+HARD_IMG = scale_image(HARD_IMG, 0.3)
 
 SOUND_IMAGE = pg.transform.scale(pg.image.load("images/button/sound.png"), (50, 50))
 INFO_IMAGE = pg.transform.scale(pg.image.load("images/button/info.png"), (50, 50))
@@ -310,7 +368,7 @@ def start_screen():
         screen.blit(LOGO_IMAGE, ((SCREEN_WIDTH - image_width) // 2 - 20, (SCREEN_HEIGHT - image_height) // 2 - 150))
         mouse_x, mouse_y = pg.mouse.get_pos()
 
-        # blit play button
+        # blit play button  
         image_width, image_height = PLAY_IMAGE.get_size()
         play_rect = pg.Rect((SCREEN_WIDTH - image_width) // 2, (SCREEN_HEIGHT - image_height) // 2 + 100, image_width, image_height)
         screen.blit(PLAY_IMAGE, play_rect)
@@ -388,54 +446,57 @@ def start_screen():
 
 def select_difficulty_screen():
     global current_difficulty
+
     while True:
         Time.tick(FPS)
         screen.blit(START_SCREEN_BACKGOUND, (0, 0))
 
-        # Vẽ tiêu đề
+        # (1) Vẽ tiêu đề
         title = FONT_PIKACHU.render("Select Difficulty", True, (0, 0, 0))
         screen.blit(title, ((SCREEN_WIDTH - title.get_width()) // 2, 100))
 
-        # Tạo các nút cấp độ
-        easy_rect = pg.Rect((SCREEN_WIDTH - 200) // 2, 200, 200, 50)
-        screen.blit(PLAY_IMAGE, easy_rect)
+        # (2) Tạo Rect cho 3 ảnh nút
+        #    Ở đây mình dùng get_rect(center=(x,y)) để đặt ảnh vào giữa màn hình
+        easy_rect   = EASY_IMG.get_rect(center   = (SCREEN_WIDTH // 2, 220))
+        medium_rect = MEDIUM_IMG.get_rect(center = (SCREEN_WIDTH // 2, 320))
+        hard_rect   = HARD_IMG.get_rect(center   = (SCREEN_WIDTH // 2, 420))
 
-        medium_rect = pg.Rect((SCREEN_WIDTH - 200) // 2, 300, 200, 50)
-        screen.blit(PLAY_IMAGE, medium_rect)
+        # (3) Vẽ 3 ảnh nút
+        screen.blit(EASY_IMG, easy_rect)
+        screen.blit(MEDIUM_IMG, medium_rect)
+        screen.blit(HARD_IMG, hard_rect)
 
-        hard_rect = pg.Rect((SCREEN_WIDTH - 200) // 2, 400, 200, 50)
-        screen.blit(PLAY_IMAGE, hard_rect)
-
-        pg.draw.rect(PLAY_IMAGE, (0, 255, 0), easy_rect)
-        pg.draw.rect(PLAY_IMAGE, (255, 255, 0), medium_rect)
-        pg.draw.rect(PLAY_IMAGE, (255, 0, 0), hard_rect)
-
+        # (4) Lấy toạ độ chuột & làm hiệu ứng hover
         mouse_x, mouse_y = pg.mouse.get_pos()
-        if easy_rect.collidepoint(mouse_x, mouse_y):
-            draw_dark_image(PLAY_IMAGE, easy_rect, (60, 60, 60))
-        
-        if medium_rect.collidepoint(mouse_x, mouse_y):
-            draw_dark_image(PLAY_IMAGE, medium_rect, (60, 60, 60))
 
+        if easy_rect.collidepoint(mouse_x, mouse_y):
+            draw_dark_image(EASY_IMG, easy_rect, (60, 60, 60))
+        if medium_rect.collidepoint(mouse_x, mouse_y):
+            draw_dark_image(MEDIUM_IMG, medium_rect, (60, 60, 60))
         if hard_rect.collidepoint(mouse_x, mouse_y):
-            draw_dark_image(PLAY_IMAGE, hard_rect, (60, 60, 60))
-        # Xử lý sự kiện
+            draw_dark_image(HARD_IMG, hard_rect, (60, 60, 60))
+
+        # (5) Vòng lặp sự kiện
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 pg.quit()
                 sys.exit()
+
             if event.type == pg.MOUSEBUTTONDOWN:
-                mouse_x, mouse_y = event.pos
-                if easy_rect.collidepoint(mouse_x, mouse_y):
+                # Xác định click vào nút nào
+                if easy_rect.collidepoint(event.pos):
                     current_difficulty = 'easy'
                     return
-                elif medium_rect.collidepoint(mouse_x, mouse_y):
+                elif medium_rect.collidepoint(event.pos):
                     current_difficulty = 'medium'
                     return
-                elif hard_rect.collidepoint(mouse_x, mouse_y):
+                elif hard_rect.collidepoint(event.pos):
                     current_difficulty = 'hard'
                     return
+
         pg.display.flip()
+
+
 def playing():
     global level, lives, paused, time_start_paused, last_time_get_point, time_paused
     paused = False
