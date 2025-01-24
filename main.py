@@ -119,9 +119,9 @@ def scale_image(img, scale=0.7):
     height = int(img.get_height() * scale)
     return pg.transform.smoothscale(img, (width, height))
 
-EASY_IMG = scale_image(EASY_IMG, 0.3)
-MEDIUM_IMG = scale_image(MEDIUM_IMG, 0.3)
-HARD_IMG = scale_image(HARD_IMG, 0.3)
+EASY_IMG = scale_image(EASY_IMG, 0.8)
+MEDIUM_IMG = scale_image(MEDIUM_IMG, 0.8)
+HARD_IMG = scale_image(HARD_IMG, 0.8)
 
 SOUND_IMAGE = pg.transform.scale(pg.image.load("images/button/sound.png"), (50, 50))
 INFO_IMAGE = pg.transform.scale(pg.image.load("images/button/info.png"), (50, 50))
