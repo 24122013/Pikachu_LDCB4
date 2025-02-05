@@ -37,9 +37,8 @@ pip install sqlite3
 ```
 
 **Bước 4:** Chạy file main.py để khởi động trò chơi
-```
 
-## **3. Cấu trúc thư mục**  
+## 3. Cấu trúc thư mục
 ```
 📂 Pikachu_LDCB4
 
