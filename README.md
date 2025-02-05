@@ -39,17 +39,26 @@ pip install sqlite3
 **Bước 4:** Chạy file main.py để khởi động trò chơi
 ```
 
-## 3. Cấu trúc thư mục  
+## **3. Cấu trúc thư mục**  
 ```
 📂 Pikachu_LDCB4
+
  ┣ 📂 __pycache__    # Thư mục cache của Python
+ 
  ┣ 📂 font           # Chứa các tệp font chữ sử dụng trong game
+ 
  ┣ 📂 images         # Chứa hình ảnh của trò chơi
+ 
  ┣ 📂 music          # Chứa nhạc nền của trò chơi
+ 
  ┣ 📂 sound          # Chứa hiệu ứng âm thanh trong game
+ 
  ┣ 📜 BFS.py         # Thuật toán tìm đường nối giữa các ô Pikachu
+ 
  ┣ 📜 main.py        # Chương trình chính để khởi chạy game
+ 
  ┣ 📜 users.db       # Cơ sở dữ liệu SQLite lưu thông tin người chơi
+ 
  ┗ 📜 README.md      # Hướng dẫn sử dụng & triển khai dự án
 ```
 
