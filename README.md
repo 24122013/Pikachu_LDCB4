@@ -30,20 +30,18 @@ cd <tên-thư-mục-dự-án>
 
 **Bước 2:** Mở tệp `main.py` bằng IDE thích hợp  
 
-**Bước 3:** Mở Terminal và nhập lệnh  
+**Bước 3:** Mở Terminal và chạy lệnh  
 ```
 pip install pygame
 pip install sqlite3
 ```
 
-**Bước 4:** Chạy lệnh sau để khởi động trò chơi  
-```
-python main.py
+**Bước 4:** Chạy file main.py để khởi động trò chơi
 ```
 
 ## 3. Cấu trúc thư mục  
 ```
-📂 PikachuMatchingGame
+📂 Pikachu_LDCB4
  ┣ 📂 __pycache__    # Thư mục cache của Python
  ┣ 📂 font           # Chứa các tệp font chữ sử dụng trong game
  ┣ 📂 images         # Chứa hình ảnh của trò chơi
